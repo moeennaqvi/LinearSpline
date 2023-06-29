@@ -30,7 +30,7 @@ def interp(x, xp, yp, method='point-slope'):
 
 def interp_point_slope(x, xp, yp):
     """
-    Evaluate the linear spline function using the point-slope formula.
+    Evaluate the linear spline function using the binary search and point-slope formula with constant extrapolation.
 
     Args:
         x (float): The point at which to evaluate the spline.
@@ -48,13 +48,26 @@ def interp_point_slope(x, xp, yp):
     elif x > xp[-1]:
         return yp[-1]  # Constant extrapolation using the last knot's value
 
-    # Compute the interpolated value using Point-slope formula
-    for i in range(n - 1):
-        if x >= xp[i] and x <= xp[i + 1]:
-            slope = (yp[i + 1] - yp[i]) / (xp[i + 1] - xp[i])
-            return yp[i] + (x - xp[i]) * slope
+    # Find the interval containing x using binary search
+    low = 0
+    high = n - 1
 
-    return np.nan
+    while low <= high:
+        mid = (low + high) // 2
+
+        if x < xp[mid]:
+            high = mid - 1
+        elif x > xp[mid]:
+            low = mid + 1
+        else:
+            return yp[mid]
+
+    # Compute the interpolated value
+    i = high  # i denotes the left knot of the interval
+    slope = (yp[i + 1] - yp[i]) / (xp[i + 1] - xp[i])
+    interpolated_value = yp[i] + slope * (x - xp[i])
+
+    return interpolated_value
 
 
 def interp_piecewise_linear(x, xp, yp):
@@ -91,7 +104,8 @@ def interp_piecewise_linear(x, xp, yp):
 
 def interp_matrix(x, xp, yp):
     """
-    Evaluate the linear spline function using matrix representation with constant extrapolation.
+    Evaluate the cubic spline function using matrix representation with constant extrapolation.
+    Based on https://en.wikiversity.org/wiki/Cubic_Spline_Interpolation
 
     Args:
         x (float): The point at which to evaluate the spline.

@@ -30,8 +30,14 @@ def validate_data(xp, yp):
         ValueError: If the lengths of xp and yp do not match,
                     or if xp is not sorted in ascending order.
     """
+    # Check if the knot arrays are empty
+    if len(xp) == 0 or len(yp) == 0:
+        raise ValueError("Error: Empty knot array!")
+
+    # Check if the knot arrays have the same length
     if len(xp) != len(yp):
         raise ValueError("Lengths of xp and yp must match.")
 
+    #Check if the knot arrays are sorted
     if xp != sorted(xp):
         raise ValueError("xp must be sorted in ascending order.")
